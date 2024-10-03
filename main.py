@@ -1,24 +1,38 @@
 from flask import Flask, request, jsonify, render_template
 import requests
-from transformers import pipeline
-
-pipe = pipeline("text-classification", model="cardiffnlp/twitter-roberta-base-emoji")
+from flask_swagger_ui import get_swaggerui_blueprint
+import json
+import string
+from trie import Trie
 
 app = Flask(__name__)
+
+SWAGGER_URL = '/docs'
+API_URL = '/static/openapi.yaml'  
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={'app_name': "Flask Emoji API"}
+)
+
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+
+trie = Trie()
+trie.load_from_json('./static/emojis.json')
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
+
 def get_predictions(text):
-    text_parts = text.split(".")
-    predictions = pipe(text_parts)
-    sorted_predictions = sorted(predictions, key=lambda x: x['score'], reverse=True)
-    return " ".join([pred['label'] for pred in sorted_predictions])
+    translator = str.maketrans('', '', string.punctuation)
+    text = text.translate(translator).lower()
+    return " ".join(trie.search(str(text)))
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = str(request.data)
+    data = request.data.decode('utf-8')
     predictions = get_predictions(data)
     return predictions
 
