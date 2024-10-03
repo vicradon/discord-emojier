@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrate Discord Emojier with Telex</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 95%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .add-btn {
+            background-color: #8f959b;
+            color: white;
+            font-size: 10px;
+            border: none;
+            padding: 5px 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .add-btn:hover {
+            background-color: #616161;
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .remove-btn:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        #response {
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+
+        #responseMessage {
+            display: none;
+            /* Initially hidden */
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Integrate Discord Emojier with Telex</h1>
+        <form id="webhookForm">
+            <div id="webhookUrls">
+                <div class="form-group">
+                    <label for="webhookUrl1">Channel 1 Webhook URL:</label>
+                    <input type="text" id="webhookUrl1" name="webhookUrl[]" required>
+                </div>
+            </div>
+            <button type="button" class="add-btn" onclick="addWebhookUrl()">Add Another Webhook URL</button><br>
+            <button type="submit" class="btn">Submit</button>
+        </form>
+        <div id="response"></div>
+        <div id="responseMessage">Copy this JSON to your Telex dashboard:</div>
+    </div>
+
+    <script>
+        let urlCount = 1;
+
+        function addWebhookUrl() {
+            urlCount++;
+            const webhookUrlsDiv = document.getElementById("webhookUrls");
+            const newInputGroup = document.createElement("div");
+            newInputGroup.className = "form-group";
+            newInputGroup.innerHTML = `
+                <label for="webhookUrl${urlCount}">Channel ${urlCount} Webhook URL:</label>
+                <input type="text" id="webhookUrl${urlCount}" name="webhookUrl[]" required>
+                <button type="button" class="remove-btn" onclick="removeWebhookUrl(this)">Remove</button>
+            `;
+            webhookUrlsDiv.appendChild(newInputGroup);
+        }
+
+        function removeWebhookUrl(button) {
+            button.parentElement.remove();
+        }
+
+        document.getElementById("webhookForm").onsubmit = function (event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const webhookUrls = formData.getAll("webhookUrl[]").filter(url => url.trim() !== '');
+
+            const jsonResponse = {
+                channels: webhookUrls.map((url) => ({
+                    webhook_url: url
+                }))
+            };
+
+            document.getElementById("response").innerText = JSON.stringify(jsonResponse, null, 2);
+            document.getElementById("responseMessage").style.display = "block"; // Show the message
+        };
+    </script>
+</body>
+
+</html>
