@@ -22,36 +22,6 @@ paths:
               schema:
                 type: string
 
-  /integrate:
-    post:
-      summary: Submit multiple Discord webhook URLs
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                webhook_urls:
-                  type: array
-                  items:
-                    type: string
-      responses:
-        '200':
-          description: A JSON object containing the list of submitted webhook URLs.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  channels:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        webhook_url:
-                          type: string
-
   /send:
     post:
       summary: Send a message to Discord channels using webhook URLs
